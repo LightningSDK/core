@@ -3,12 +3,13 @@ package core
 import (
 	"bytes"
 	"fmt"
+	"golang.org/x/exp/maps"
 	"os"
 )
 
 // the project should wrap this function to build the cli tools, passing in the configuration
 func RunCommand(a *App) error {
-	commands := getCommands()
+	commands := getCommands(a)
 	// load command from plugins here
 
 	fc := os.Args
@@ -36,13 +37,20 @@ type Command struct {
 	Help     string
 }
 
-func getCommands() map[string]Command {
-	return map[string]Command{
+func getCommands(a *App) map[string]Command {
+	cmds := map[string]Command{
 		"autogenerate": {
 			Function: autognenerate,
 			Help:     "Automatically generate required module imports",
 		},
 	}
+	for _, m := range a.Modules {
+		if add := m.GetCommands(); add != nil {
+			maps.Copy(cmds, add)
+		}
+	}
+
+	return cmds
 }
 
 func autognenerate(a *App) error {
