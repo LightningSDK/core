@@ -8,6 +8,8 @@ import (
 	"net/http"
 )
 
+type Params map[string]string
+
 func StartService(a *App) error {
 	fmt.Println(a)
 
@@ -21,8 +23,13 @@ func configureGin(r *gin.Engine, app *App) {
 	for _, m := range app.Modules {
 		for _, h := range m.GetHandlers() {
 			r.Handle(h.Method, h.Endpoint, func(c *gin.Context) {
-				// this is a temporary wrapper and should be updated to a more elegant system
-				ctx := context.WithValue(c.Request.Context(), "params", c.Params)
+				// convert the gin params to lightnign params
+				p := Params{}
+				for _, pp := range c.Params {
+					p[pp.Key] = pp.Value
+				}
+				ctx := context.WithValue(c.Request.Context(), "params", p)
+				// todo: do the same for query and post body
 				resp, err := h.Handle(ctx, c.Request)
 				if err != nil {
 					c.AbortWithStatus(http.StatusBadRequest)

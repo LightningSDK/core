@@ -37,8 +37,6 @@ func BootstrapConfig(f string, initter func(app *App) map[string]Module) (*App, 
 		return nil, err
 	}
 
-	err = yaml.Unmarshal(y, app)
-
 	// iterate through each of the modules. if it has its own config,
 	// then the yaml should be unmarshalled to it
 	for _, m := range app.Modules {
@@ -53,6 +51,7 @@ func BootstrapConfig(f string, initter func(app *App) map[string]Module) (*App, 
 				if err != nil {
 					return nil, err
 				}
+				m.SetConfig(c)
 			}
 		}
 	}

@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+	"fmt"
 	"gopkg.in/yaml.v3"
 )
 
@@ -25,14 +26,18 @@ func (ms *Modules) UnmarshalYAML(value *yaml.Node) error {
 		if c == nil {
 			continue
 		}
-		if value.Content[i+1].Tag != "!!map" {
-			return errors.New("module config is not a map")
+		switch value.Content[i+1].Tag {
+		case "!!null":
+			continue
+		case "!!map":
+			err := value.Content[i+1].Decode(c)
+			if err != nil {
+				return err
+			}
+			(*ms)[n].SetConfig(c)
+		default:
+			return fmt.Errorf("module config for '%s' must be either a map or null", n)
 		}
-		err := value.Content[i+1].Decode(c)
-		if err != nil {
-			return err
-		}
-		(*ms)[n].SetConfig(c)
 	}
 	return nil
 }

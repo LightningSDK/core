@@ -53,6 +53,7 @@ func getCommands(a *App) map[string]Command {
 	return cmds
 }
 
+// this builds the module registry file
 func autognenerate(a *App) error {
 	// create the contents
 	fmt.Println("autogenerating ...")
