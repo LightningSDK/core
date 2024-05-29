@@ -7,7 +7,6 @@ import (
 )
 
 type Module interface {
-	GetRenderers() map[string]Renderer
 	GetHandlers() []Handler
 	GetCommands() map[string]Command
 	GetEmptyConfig() any
@@ -45,9 +44,6 @@ func (ms *Modules) UnmarshalYAML(value *yaml.Node) error {
 type DefaultModule struct{}
 
 func (m *DefaultModule) GetCommands() map[string]Command {
-	return nil
-}
-func (m *DefaultModule) GetRenderers() map[string]Renderer {
 	return nil
 }
 func (m *DefaultModule) GetHandlers() []Handler {

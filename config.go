@@ -2,6 +2,7 @@ package core
 
 import (
 	"dario.cat/mergo"
+	"github.com/creasty/defaults"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -43,6 +44,10 @@ func BootstrapConfig(f string, initter func(app *App) map[string]Module) (*App, 
 		if c := m.GetEmptyConfig(); c != nil {
 			for _, y := range ys {
 				temp := m.GetEmptyConfig()
+				err = defaults.Set(temp)
+				if err != nil {
+					return nil, err
+				}
 				err = yaml.Unmarshal(y, temp)
 				if err != nil {
 					return nil, err

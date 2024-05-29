@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"golang.org/x/exp/maps"
 	"os"
+	"strings"
 )
 
 // the project should wrap this function to build the cli tools, passing in the configuration
@@ -59,20 +60,23 @@ func autognenerate(a *App) error {
 	fmt.Println("autogenerating ...")
 	buf := bytes.NewBuffer([]byte{})
 	buf.WriteString("package autogen\n\n")
-	buf.WriteString("import \"github.com/lightningsdk/core\"\n")
+	buf.WriteString("import (\n")
+	// first add the coe
+	buf.WriteString(fmt.Sprintf("\t\"%s\"\n", "github.com/lightningsdk/core"))
 	if len(a.Modules) > 0 {
-		buf.WriteString("import (\n")
 		for k, _ := range a.Modules {
 			fmt.Println(fmt.Sprintf("\tadding module: %s", k))
 			buf.WriteString(fmt.Sprintf("\t\"%s\"\n", k))
 		}
-		buf.WriteString(")\n\n")
 	}
+	buf.WriteString(")\n\n")
 
 	buf.WriteString("func GetModules(app *core.App) map[string]core.Module {\n")
 	buf.WriteString("\tmodules := map[string]core.Module{}\n")
 	for k, _ := range a.Modules {
-		buf.WriteString(fmt.Sprintf("\tmodules[\"%s\"] = blog.NewModule(app)\n", k))
+		s := strings.Split(k, "/")
+		pkg := s[len(s)-1]
+		buf.WriteString(fmt.Sprintf("\tmodules[\"%s\"] = %s.NewModule(app)\n", k, pkg))
 	}
 	buf.WriteString("\treturn modules\n")
 	buf.WriteString("}\n")

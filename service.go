@@ -41,7 +41,11 @@ func configureGin(r *gin.Engine, app *App) {
 						c.AbortWithStatus(http.StatusBadRequest)
 						return
 					}
-					c.Data(200, resp.Header["Content-Type"][0], b)
+					contentType := "text/html"
+					if ct, ok := resp.Header["Content-Type"]; ok && len(ct) > 0 {
+						contentType = ct[0]
+					}
+					c.Data(200, contentType, b)
 				}
 			})
 		}
