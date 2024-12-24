@@ -1,20 +1,16 @@
-package core
+package service
 
 import (
 	"dario.cat/mergo"
 	"github.com/creasty/defaults"
+	"github.com/lightningsdk/core/model"
 	"gopkg.in/yaml.v3"
 	"os"
 )
 
-type App struct {
-	Include []string `yaml:"include"`
-	Modules Modules  `yaml:"modules"`
-}
-
 // BootstrapConfig this should be the very first function called.
-// It loads the auto-generated module list and passes the primary config yaml file.
-func BootstrapConfig(f string, initter func(app *App) map[string]Module) (*App, error) {
+// It loads the auto-generated plugin list and passes the primary config yaml file.
+func BootstrapConfig(f string, initter func(app *App) map[string]model.Plugin) (*App, error) {
 	// load the yaml file
 	y, err := os.ReadFile(f)
 	if err != nil {
@@ -31,16 +27,16 @@ func BootstrapConfig(f string, initter func(app *App) map[string]Module) (*App, 
 		Include: []string{},
 	}
 
-	app.Modules = initter(app)
+	app.Plugins = initter(app)
 
 	err = yaml.Unmarshal(y, app)
 	if err != nil {
 		return nil, err
 	}
 
-	// iterate through each of the modules. if it has its own config,
+	// iterate through each of the plugins. if it has its own config,
 	// then the yaml should be unmarshalled to it
-	for _, m := range app.Modules {
+	for _, m := range app.Plugins {
 		if c := m.GetEmptyConfig(); c != nil {
 			for _, y := range ys {
 				temp := m.GetEmptyConfig()
