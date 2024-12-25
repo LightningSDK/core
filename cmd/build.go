@@ -25,7 +25,7 @@ func Autognenerate(a model.App) error {
 	buf.WriteString("package autogen\n\n")
 	buf.WriteString("import (\n")
 	// first add the coe
-	buf.WriteString(fmt.Sprintf("\t\"%s\"\n", "github.com/lightningsdk/core"))
+	buf.WriteString(fmt.Sprintf("\t\"%s\"\n", "github.com/lightningsdk/core/model"))
 	p := a.GetPlugins()
 	if len(p) > 0 {
 		for k, _ := range p {
@@ -35,12 +35,12 @@ func Autognenerate(a model.App) error {
 	}
 	buf.WriteString(")\n\n")
 
-	buf.WriteString("func GetPlugins(app *core.App) map[string]core.Plugin {\n")
-	buf.WriteString("\tplugins := map[string]core.Plugin{}\n")
+	buf.WriteString("func GetPlugins() map[string]model.Plugin {\n")
+	buf.WriteString("\tplugins := map[string]model.Plugin{}\n")
 	for k, _ := range p {
 		s := strings.Split(k, "/")
 		pkg := s[len(s)-1]
-		buf.WriteString(fmt.Sprintf("\tplugins[\"%s\"] = %s.NewPlugin(app)\n", k, pkg))
+		buf.WriteString(fmt.Sprintf("\tplugins[\"%s\"] = %s.NewPlugin()\n", k, pkg))
 	}
 	buf.WriteString("\treturn plugins\n")
 	buf.WriteString("}\n")
