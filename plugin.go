@@ -1,13 +1,20 @@
 package core
 
 import (
+	"encoding/json"
 	"github.com/lightningsdk/core/cmd"
 	"github.com/lightningsdk/core/http"
 	"github.com/lightningsdk/core/model"
-	"github.com/lightningsdk/core/service"
 )
 
+type Configuration struct {
+	HTTP struct {
+		Port int `json:"port"`
+	}
+}
+
 type core struct {
+	conf *Configuration
 	model.DefaultPlugin
 }
 
@@ -26,11 +33,10 @@ func (c *core) GetCommands() map[string]model.Command {
 	}
 }
 
-// NewApp creates and returns an instance of App
-func NewApp() *service.App {
-	return &service.App{
-		Plugins: map[string]model.Plugin{
-			"core": &core{},
-		},
+func (c *core) Configure(cfg []byte) {
+	c.conf = &Configuration{}
+	err := json.Unmarshal(cfg, c.conf)
+	if err != nil {
+		panic(err)
 	}
 }

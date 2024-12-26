@@ -8,15 +8,30 @@ import (
 )
 
 type App struct {
-	Include  []string                 `yaml:"include"`
-	Plugins  map[string]model.Plugin  `yaml:"plugins"`
-	Routes   []model.Route            `yaml:"routes"`
-	Commands map[string]model.Command `yaml:"commands"`
+	Include  []string
+	Plugins  map[string]model.Plugin
+	Routes   []model.Route
+	Commands map[string]model.Command
+	configs  *Config
 }
 
-func (a *App) Bootstrap() {
+func (a *App) Bootstrap(configPath string) {
+	// load the configurations into raw json, ready for each plugin to parse itself
+	a.configs = loadConfigurations(configPath)
+
+	for p, plugin := range a.Plugins {
+		perm := createPermissionToken(p)
+		plugin.SetPermissionToken(perm)
+		cfg := a.configs.getConfig(p)
+		plugin.Configure(cfg)
+	}
+
+	// load the commands and routes
 	if a.Commands == nil {
 		a.Commands = map[string]model.Command{}
+	}
+	if a.Routes == nil {
+		a.Routes = []model.Route{}
 	}
 	for _, plugin := range a.Plugins {
 		a.Routes = append(a.Routes, plugin.GetRoutes()...)

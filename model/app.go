@@ -2,7 +2,7 @@ package model
 
 type App interface {
 	Run()
-	Bootstrap()
+	Bootstrap(configPath string)
 	GetCommands() map[string]Command
 	GetPlugins() map[string]Plugin
 }
